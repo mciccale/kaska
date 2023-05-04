@@ -125,12 +125,20 @@ void *servicio(void *arg)
             // se crea la estructura del tema
             topic->cola = queue_create(0);
 
+            // se abre el directorio donde se tiene que crear el archivo de persistencia
+            int dir_fd = open(directorio_data, O_DIRECTORY);
+            if (dir_fd < 0)
+            {
+                printf("No se ha podido abrir el directorio\n");
+                res = htonl(-1);
+                write(thinf->socket, &res, sizeof(int));
+                break;
+                break;
+            }
+
             // se tiene que crear el fichero con el nombre del tema en la proyeccion
             // el formato del archivo sera: KASK[longitud_msg][msg]...[longitud_msg][msg]
-            ruta_fichero = malloc(strlen(directorio_data) + 1 + longitud_str + 1);
-            sprintf(ruta_fichero, "%s/%s", directorio_data, topic->nombre);
-
-            int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC);
+            int fd = openat(dir_fd, topic->nombre, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
             if (fd < 0)
             {
                 printf("No se ha podido crear o abrir el fichero\n");
@@ -387,6 +395,8 @@ void *servicio(void *arg)
                 res = htonl(-1);
                 iov[0].iov_base = &res;
                 iov[0].iov_len = sizeof(int);
+                iov[1].iov_base = &res;
+                iov[1].iov_len = sizeof(int);
                 writev(thinf->socket, iov, 2);
                 break;
                 break;
@@ -400,6 +410,8 @@ void *servicio(void *arg)
                 res = htonl(0);
                 iov[0].iov_base = &res;
                 iov[0].iov_len = sizeof(int);
+                iov[1].iov_base = &res;
+                iov[1].iov_len = sizeof(int);
                 writev(thinf->socket, iov, 2);
                 break;
                 break;

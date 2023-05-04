@@ -16,13 +16,13 @@ int s;      // socket único por sesión
 int entero; // variable util
 int result;
 int my_offset;             // variable offset
+int trash;                 // variable para tirar
 bool s_bound = false;      // variable que indica si está el socket ya creado
 bool found;                // variable para poll
 map *subscriptions = NULL; // mapa para guardar a qué temas se está suscrito
 map_position *pos;         // variable para el iterador
 map_iter *it;              // iterador del mapa
 subscription *sub;         // variable para la subscripcion
-char trash[BUFFER_SIZE];   // variable para tirar
 
 static int init_socket_client()
 {
@@ -434,10 +434,12 @@ int poll(char **topic, void **msg)
         }
         else
         {
-            while (1)
+            if (recv(s, &trash, sizeof(int), MSG_WAITALL) != sizeof(int))
             {
-                if (recv(s, trash, BUFFER_SIZE, 0) < BUFFER_SIZE)
-                    break;
+                perror("error en recv");
+                close(s);
+                s_bound = false;
+                return -1;
             }
         }
     }
