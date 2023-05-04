@@ -107,7 +107,6 @@ void *servicio(void *arg)
             if (recv(thinf->socket, &longitud_str, sizeof(int), MSG_WAITALL) != sizeof(int))
             {
                 break;
-                break;
             }
             longitud_str = ntohl(longitud_str);
             printf("Recibida longitud del tema: %d\n", longitud_str);
@@ -116,7 +115,6 @@ void *servicio(void *arg)
             // se recibe el string
             if (recv(thinf->socket, topic->nombre, longitud_str, MSG_WAITALL) != longitud_str)
             {
-                break;
                 break;
             }
             topic->nombre[longitud_str] = '\0';
@@ -133,18 +131,16 @@ void *servicio(void *arg)
                 res = htonl(-1);
                 write(thinf->socket, &res, sizeof(int));
                 break;
-                break;
             }
 
             // se tiene que crear el fichero con el nombre del tema en la proyeccion
             // el formato del archivo sera: KASK[longitud_msg][msg]...[longitud_msg][msg]
-            int fd = openat(dir_fd, topic->nombre, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+            int fd = openat(dir_fd, topic->nombre, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
             if (fd < 0)
             {
                 printf("No se ha podido crear o abrir el fichero\n");
                 res = htonl(-1);
                 write(thinf->socket, &res, sizeof(int));
-                break;
                 break;
             }
 
@@ -158,7 +154,6 @@ void *servicio(void *arg)
                 printf("Fallo en la proyeccion del fichero\n");
                 res = htonl(-1);
                 write(thinf->socket, &res, sizeof(int));
-                break;
                 break;
             }
 

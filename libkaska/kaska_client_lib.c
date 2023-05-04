@@ -12,9 +12,9 @@
 #include "kaska.h"
 #include "map.h"
 
-int s;      // socket único por sesión
-int entero; // variable util
-int result;
+int s;                     // socket único por sesión
+int entero;                // variable util
+int result;                // variable para almacenar resultados
 int my_offset;             // variable offset
 int trash;                 // variable para tirar
 bool s_bound = false;      // variable que indica si está el socket ya creado
